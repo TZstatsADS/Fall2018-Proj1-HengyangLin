@@ -1,7 +1,9 @@
 ---
 title: "R Notebook"
 author: "Hengyang Lin hl3116"
-output: html_notebook
+output:
+  html_document: default
+  html_notebook: default
 ---
 ##In this report, I will focus on what kind of people would gain happiness from a specific source. The sources of happiness could be approximately substituted by Topics when refer to happiness. And then I will explore the structure of the population whose people get happy from a specific sourece.
 
@@ -270,26 +272,47 @@ topic_tag <- c("family","social activity","good mood and life","career","accompa
 
 #seperate the data into different clusters
 ind.df <- read.csv("../output/LDAGibbs 10 DocsToTopics.csv")
-int.mat <- matrix(NA, nrow = nrow(ind.df), ncol = 10)
-colnames(int.mat) <- 1:10
+hm_data <- data.frame(hm.data, topic = as.integer(ind.df$V1))
 
-for(i in 1:10){
-  int.mat[,i] <- ind.df$V1 == i
-}
 
-pop1 <- hm.data[int.mat[,1],]
-pop2 <- hm.data[int.mat[,2],]
-pop3 <- hm.data[int.mat[,3],]
-pop4 <- hm.data[int.mat[,4],]
-pop5 <- hm.data[int.mat[,5],]
-pop6 <- hm.data[int.mat[,6],]
-pop7 <- hm.data[int.mat[,7],]
-pop8 <- hm.data[int.mat[,8],]
-pop9 <- hm.data[int.mat[,9],]
-pop10 <- hm.data[int.mat[,10],]
 ```
 
-Let's have a look about how big each cluster is.
+##a). Let's have a look about how gender would change among different clusters.
 ```{r}
+ggplot(hm_data) +
+  geom_bar(mapping = aes(x = gender)) +
+  facet_grid(.~topic,scales = "fixed")
+```
+As we can from the figure, the gender odd between genders basically keeps stable in clusters, except the cluster of topic 10 "sport". 
 
+It is very obvious that in cluster 10 with hash-tag "sport", the proportion of female people is significantly lower than it in other clusters. This conforms to our daily impression that male people would be more possibly getting happy from sport.
+
+##b).
+```{r}
+ggplot(hm_data) +
+  geom_bar(mapping = aes(x = marital)) +
+  facet_grid(.~topic,scales = "fixed") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5))
+```
+This graph is very interesting. The cluster 1 has the biggest odd for married via single. Actually, cluster 1 is the only cluster that whose married people exceed single people.
+
+We know that since the topic of cluster 1 is "family", maybe we do verify that if one person gains happiness from family, he would be more likely to be a married person.
+
+The odd for married via single is quite small in both cluster 4 and cluster 10. The topic of cluster 4 is "career", which indicates that single person may tend to acquire happiness from favorably career.
+
+##c).
+```{r}
+ggplot(hm_data) +
+  geom_bar(mapping = aes(x = parenthood)) +
+  facet_grid(.~topic,scales = "fixed")
+```
+##d).
+```{r,warning=FALSE}
+#Age distribution
+ggplot(data = hm_data, aes(x = as.numeric(age), y = ..density..)) +
+  geom_histogram(bins = 100) +
+  scale_x_continuous(limits = c(15,55))+
+  xlab("age") +
+  theme(axis.text.x = element_text(angle = 90, hjust = 0.5)) +
+  facet_grid(.~topic,scales = "fixed")
 ```
